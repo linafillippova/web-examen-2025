@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, TextAreaField, SelectMultipleField, FileField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, TextAreaField, BooleanField, SelectMultipleField, FileField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from flask_wtf.file import FileAllowed, FileRequired
 from wtforms import SelectMultipleField, widgets
@@ -7,6 +7,7 @@ from wtforms import SelectMultipleField, widgets
 class LoginForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
+    remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')
 
 class BookForm(FlaskForm):
