@@ -22,6 +22,10 @@
                         <span class="text-danger">{{ error }}</span>
                     {% endfor %}
                 </div>
+                <div class="form-check">
+                    {{ form.remember_me(class="form-check-input") }}
+                    <label class="form-check-label" for="remember_me">Запомнить меня</label>
+                </div>
                 {{ form.submit(class="btn btn-primary") }}
             </form>
         </div>
