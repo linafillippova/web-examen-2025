@@ -13,7 +13,7 @@ class LoginForm(FlaskForm):
 class BookForm(FlaskForm):
     title = StringField('Название', validators=[DataRequired()])
     description = TextAreaField('Краткое описание', validators=[DataRequired()])
-    year = IntegerField('Год', validators=[DataRequired(), NumberRange(min=1000, max=2024)])
+    year = IntegerField('Год', validators=[DataRequired(), NumberRange(min=1000, max=2025)])
     publisher = StringField('Издательство', validators=[DataRequired()])
     author = StringField('Автор', validators=[DataRequired()])
     pages = IntegerField('Объем (в страницах)', validators=[DataRequired(), NumberRange(min=1)])
