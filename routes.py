@@ -60,37 +60,40 @@ def logout():
 def add_book():
     form = BookForm()
     genres = Genre.query.all()
+
     if form.validate_on_submit():
         try:
             cover_image = form.cover.data
             filename = secure_filename(cover_image.filename)
+            mime_type = cover_image.content_type
 
             # Generate MD5 hash BEFORE saving
             md5_hash = hashlib.md5(cover_image.read()).hexdigest()
-            cover_image.seek(0) # Reset file pointer after reading for hash
+            cover_image.seek(0)  
 
             # Check if a cover with the same hash already exists
-            try:
-                existing_cover = Cover.query.filter_by(md5_hash=md5_hash).one()
+            existing_cover = Cover.query.filter_by(md5_hash=md5_hash).first()  
+            if existing_cover:
                 # Cover already exists
                 cover_id = existing_cover.id
                 flash('Обложка с таким содержанием уже существует. Используется существующая обложка.', 'info')
-            except NoResultFound:
+            else:
                 # Cover does not exist, create a new one
-                new_cover = Cover(filename=filename, mime_type=cover_image.content_type, md5_hash=md5_hash)
-                db.session.add(new_cover)
-                db.session.flush()  # Get the ID immediately
-                cover_id = new_cover.id
+                new_filename = f"{hashlib.md5(filename.encode('utf-8')).hexdigest()}.jpg" 
+                file_path = os.path.join(Config.UPLOAD_FOLDER, new_filename)
 
-                # Save the cover image using the cover's ID as the filename
-                file_path = os.path.join(Config.UPLOAD_FOLDER, f"{cover_id}.jpg")  # Use ID for filename
                 cover_image.save(file_path)
+
+                new_cover = Cover(filename=new_filename, mime_type=mime_type, md5_hash=md5_hash)
+                db.session.add(new_cover)
+                db.session.flush() # Get the ID
+                cover_id = new_cover.id
 
             # Get selected genre IDs from the form
             selected_genre_ids = request.form.getlist('genres')
             selected_genres = [Genre.query.get(int(genre_id)) for genre_id in selected_genre_ids]
 
-            # Санитайзинг описания
+            # Sanitize the description
             cleaned_description = bleach.clean(form.description.data)
 
             # Create a new Book object
@@ -101,7 +104,7 @@ def add_book():
                 publisher=form.publisher.data,
                 author=form.author.data,
                 pages=form.pages.data,
-                cover_id=cover_id, # Use the retrieved cover ID
+                cover_id=cover_id,
                 genres=selected_genres
             )
 
