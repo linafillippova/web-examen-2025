@@ -13,13 +13,12 @@ book_genre = db.Table('book_genre',
 
 class Cover(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.String(255), nullable=False, unique=True) 
     mime_type = db.Column(db.String(100), nullable=False)
     md5_hash = db.Column(db.String(32), nullable=False)
 
     def __repr__(self):
         return f'<Cover {self.filename}>'
-
 
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
