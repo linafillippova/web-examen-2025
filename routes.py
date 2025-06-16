@@ -241,15 +241,23 @@ def my_reviews():
     return render_template('my_reviews.html', reviews=reviews)
 
 
-@routes_bp.route('/moderate_reviews')
+@routes_bp.route('/moderate_reviews', methods=['GET'])
 @login_required
 @check_role('moderator')
 def moderate_reviews():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # Количество рецензий на странице
-    pending_status = ReviewStatus.query.filter_by(name='на рассмотрении').first()
-    reviews = Review.query.filter_by(status_id=pending_status.id).order_by(Review.date_added.desc()).paginate(page=page, per_page=per_page)
-    return render_template('moderate_reviews.html', reviews=reviews)
+    status_filter = request.args.get('status', 'на рассмотрении')  # Статус по умолчанию
+
+    status = ReviewStatus.query.filter_by(name=status_filter).first()
+    if status:
+        reviews = Review.query.filter_by(status_id=status.id).order_by(Review.date_added.desc()).paginate(page=page, per_page=per_page)
+    else:
+        pending_status = ReviewStatus.query.filter_by(name='на рассмотрении').first()
+        reviews = Review.query.filter_by(status_id=pending_status.id).order_by(Review.date_added.desc()).paginate(page=page, per_page=per_page)
+        status_filter = 'на рассмотрении'
+
+    return render_template('moderate_reviews.html', reviews=reviews, current_status=status_filter)
 
 @routes_bp.route('/moderate_review/<int:review_id>')
 @login_required
