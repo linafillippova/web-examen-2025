@@ -4,6 +4,13 @@
 
 {% block content %}
     <h1>Модерация рецензий</h1>
+
+    <div class="mb-3">
+        <a href="{{ url_for('routes.moderate_reviews', status='на рассмотрении') }}" class="btn btn-{% if current_status == 'на рассмотрении' %}primary{% else %}secondary{% endif %}">На рассмотрении</a>
+        <a href="{{ url_for('routes.moderate_reviews', status='одобрена') }}" class="btn btn-{% if current_status == 'одобрена' %}primary{% else %}secondary{% endif %}">Одобренные</a>
+        <a href="{{ url_for('routes.moderate_reviews', status='отклонена') }}" class="btn btn-{% if current_status == 'отклонена' %}primary{% else %}secondary{% endif %}">Отклоненные</a>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -29,7 +36,7 @@
     <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center">
             {% if reviews.has_prev %}
-                <li class="page-item"><a class="page-link" href="{{ url_for('routes.moderate_reviews', page=reviews.prev_num) }}">Предыдущая</a></li>
+                <li class="page-item"><a class="page-link" href="{{ url_for('routes.moderate_reviews', page=reviews.prev_num, status=current_status) }}">Предыдущая</a></li>
             {% else %}
                 <li class="page-item disabled"><span class="page-link">Предыдущая</span></li>
             {% endif %}
@@ -38,14 +45,14 @@
                     {% if reviews.page == page_num %}
                         <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
                     {% else %}
-                        <li class="page-item"><a class="page-link" href="{{ url_for('routes.moderate_reviews', page=page_num) }}">{{ page_num }}</a></li>
+                        <li class="page-item"><a class="page-link" href="{{ url_for('routes.moderate_reviews', page=page_num, status=current_status) }}">{{ page_num }}</a></li>
                     {% endif %}
                 {% else %}
                     <li class="page-item disabled"><span class="page-link">…</span></li>
                 {% endif %}
             {% endfor %}
             {% if reviews.has_next %}
-                <li class="page-item"><a class="page-link" href="{{ url_for('routes.moderate_reviews', page=reviews.next_num) }}">Следующая</a></li>
+                <li class="page-item"><a class="page-link" href="{{ url_for('routes.moderate_reviews', page=reviews.next_num, status=current_status) }}">Следующая</a></li>
             {% else %}
                 <li class="page-item disabled"><span class="page-link">Следующая</span></li>
             {% endif %}
