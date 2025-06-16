@@ -67,18 +67,14 @@ def add_book():
             filename = secure_filename(cover_image.filename)
             mime_type = cover_image.content_type
 
-            # Generate MD5 hash BEFORE saving
             md5_hash = hashlib.md5(cover_image.read()).hexdigest()
             cover_image.seek(0)  
 
-            # Check if a cover with the same hash already exists
             existing_cover = Cover.query.filter_by(md5_hash=md5_hash).first()  
             if existing_cover:
-                # Cover already exists
                 cover_id = existing_cover.id
                 flash('Обложка с таким содержанием уже существует. Используется существующая обложка.', 'info')
             else:
-                # Cover does not exist, create a new one
                 new_filename = f"{hashlib.md5(filename.encode('utf-8')).hexdigest()}.jpg" 
                 file_path = os.path.join(Config.UPLOAD_FOLDER, new_filename)
 
@@ -89,14 +85,11 @@ def add_book():
                 db.session.flush() # Get the ID
                 cover_id = new_cover.id
 
-            # Get selected genre IDs from the form
             selected_genre_ids = request.form.getlist('genres')
             selected_genres = [Genre.query.get(int(genre_id)) for genre_id in selected_genre_ids]
 
-            # Sanitize the description
             cleaned_description = bleach.clean(form.description.data)
 
-            # Create a new Book object
             new_book = Book(
                 title=form.title.data,
                 description=cleaned_description,
@@ -203,14 +196,13 @@ def edit_book(book_id):
             # Санитайзинг описания
             cleaned_description = bleach.clean(form.description.data)
 
-            # Update book details
             book.title = form.title.data
             book.description = cleaned_description
             book.year = form.year.data
             book.publisher = form.publisher.data
             book.author = form.author.data
             book.pages = form.pages.data
-            # Get selected genre IDs from the form
+            
             selected_genre_ids = request.form.getlist('genres')
             selected_genres = [Genre.query.get(int(genre_id)) for genre_id in selected_genre_ids]
             book.genres = selected_genres
@@ -232,12 +224,10 @@ def edit_book(book_id):
 def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
 
-    # Delete the book's cover image file
     cover_path = os.path.join(Config.UPLOAD_FOLDER, book.cover.filename)
     if os.path.exists(cover_path):
         os.remove(cover_path)
 
-    # Finally, delete the book
     db.session.delete(book)
     db.session.commit()
     flash('Книга успешно удалена!', 'success')
